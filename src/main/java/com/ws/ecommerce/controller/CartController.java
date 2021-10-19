@@ -25,7 +25,6 @@ public class CartController {
 
     @GetMapping("/")
     public List<Cart> getAll() {
-        //System.out.println(cartRepository);
         return cartRepository.findAll();
     }
 
