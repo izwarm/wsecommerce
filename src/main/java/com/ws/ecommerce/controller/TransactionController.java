@@ -41,12 +41,9 @@ public class TransactionController {
             if (item.isPresent()) {
                 Item item1 = item.get();
                 int sisaItem = item1.getQuantity() - cart1.getQuantity();
-
                 item1.setQuantity(sisaItem);
                 itemRepository.save(item1);
-
-                double totalPrice = cart1.getQuantity() * item1.getPrice();
-                transaction.setTotalPrice(totalPrice);
+                transaction.setTotalPrice(cart1.getTotalPrice());
                 transaction.setBuyersId(cart1.getBuyersId());
                 transaction.setItemName(item1.getItemName());
                 transaction.setQuantity(cart1.getQuantity());

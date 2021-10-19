@@ -4,6 +4,7 @@ import com.ws.ecommerce.model.Cart;
 import com.ws.ecommerce.model.Item;
 import com.ws.ecommerce.repository.CartRepository;
 
+import com.ws.ecommerce.repository.ItemRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +20,24 @@ public class CartController {
     @Autowired
     CartRepository cartRepository;
 
+    @Autowired
+    ItemRepository itemRepository;
+
     @GetMapping("/")
     public List<Cart> getAll() {
+        //System.out.println(cartRepository);
         return cartRepository.findAll();
     }
 
     @PostMapping("/")
     public Cart tambahcart(@Valid @RequestBody Cart cart) {
+        Optional<Item> item = itemRepository.findById(cart.getItemId());
+        if (item.isPresent()){
+            Item item1 = item.get();
+            double totalPrice = cart.getQuantity() * item1.getPrice();
+            cart.setTotalPrice(totalPrice);
+            itemRepository.save(item1);
+        }
         return cartRepository.save(cart);
     }
 

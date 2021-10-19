@@ -24,6 +24,8 @@ public class Cart implements Serializable {
 
     private Long buyersId;
 
+    private double totalPrice;
+
     private int quantity;
 
     @Column(nullable = false, updatable = false)
@@ -58,6 +60,14 @@ public class Cart implements Serializable {
 
     public void setBuyersId(Long buyersId) {
         this.buyersId = buyersId;
+    }
+
+    public double getTotalPrice() {
+        return totalPrice;
+    }
+
+    public void setTotalPrice(double totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     public int getQuantity() {
