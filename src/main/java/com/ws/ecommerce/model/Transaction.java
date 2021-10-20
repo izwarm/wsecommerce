@@ -9,6 +9,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "transaction")
@@ -22,11 +23,12 @@ public class Transaction implements Serializable {
 
     private Long buyersId;
 
-    private Long cartId;
+    @Transient
+    private List<Long> cartIds;
+
+    private String cartId;
 
     private String itemName;
-
-    private int quantity;
 
     private double totalPrice;
 
@@ -48,6 +50,14 @@ public class Transaction implements Serializable {
         this.id = id;
     }
 
+    public List<Long> getCartIds() {
+        return cartIds;
+    }
+
+    public void setCartIds(List<Long> cartIds) {
+        this.cartIds = cartIds;
+    }
+
     public String getItemName() {
         return itemName;
     }
@@ -56,28 +66,20 @@ public class Transaction implements Serializable {
         this.itemName = itemName;
     }
 
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
-    }
-
-    public Long getCartId() {
-        return cartId;
-    }
-
-    public void setCartId(Long cartId) {
-        this.cartId = cartId;
-    }
-
     public double getTotalPrice() {
         return totalPrice;
     }
 
     public void setTotalPrice(double totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getCartId() {
+        return cartId;
+    }
+
+    public void setCartId(String cartId) {
+        this.cartId = cartId;
     }
 
     public Long getBuyersId() {

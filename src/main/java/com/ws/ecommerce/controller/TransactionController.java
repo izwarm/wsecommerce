@@ -11,8 +11,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/transaction")
@@ -34,21 +37,30 @@ public class TransactionController {
 
     @PostMapping("/")
     public Transaction tambahtransaction(@Valid @RequestBody Transaction transaction) {
-        Optional<Cart> cart = cartRepository.findById(transaction.getCartId());
-        if (cart.isPresent()) {
-            Cart cart1 = cart.get();
-            Optional<Item> item = itemRepository.findById(cart1.getItemId());
-            if (item.isPresent()) {
-                Item item1 = item.get();
-                int sisaItem = item1.getQuantity() - cart1.getQuantity();
-                item1.setQuantity(sisaItem);
-                itemRepository.save(item1);
-                transaction.setTotalPrice(cart1.getTotalPrice());
-                transaction.setBuyersId(cart1.getBuyersId());
-                transaction.setItemName(item1.getItemName());
-                transaction.setQuantity(cart1.getQuantity());
+        List<Cart> carts = cartRepository.findByIdIn(transaction.getCartIds());
+        carts = carts.stream()
+                .filter(a -> Objects.equals(a.getBuyersId(), transaction.getBuyersId()))
+                .collect(Collectors.toList());
+        if (!carts.isEmpty()) {
+            double totalPrice = 0d;
+            List<String> itemsName = new ArrayList<>();
+            List<String> cartId = new ArrayList<>();
+            for (Cart cart1 : carts) {
+                Optional<Item> item = itemRepository.findById(cart1.getItemId());
+                if (item.isPresent()) {
+                    Item item1 = item.get();
+                    int sisaItem = item1.getQuantity() - cart1.getQuantity();
+                    item1.setQuantity(sisaItem);
+                    itemRepository.save(item1);
+                    totalPrice += cart1.getTotalPrice();
+                    itemsName.add(item1.getItemName());
+                    cartId.add(String.valueOf(cart1.getId()));
+                }
+                cartRepository.deleteById(cart1.getId());
             }
-            cartRepository.deleteById(cart1.getId());
+            transaction.setItemName(String.join(",", itemsName));
+            transaction.setCartId(String.join(",", cartId));
+            transaction.setTotalPrice(totalPrice);
         }
         return transactionRepository.save(transaction);
     }
@@ -64,7 +76,7 @@ public class TransactionController {
     }
 
     @GetMapping("/buyers/{id}")
-    public List<Transaction> getAllTransactinByBuyersId(@PathVariable(value = "id") Long id) {
+    public List<Transaction> getAllTransactionByBuyersId(@PathVariable(value = "id") Long id) {
         return transactionRepository.findByBuyersId(id);
 
     }
